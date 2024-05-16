@@ -6,9 +6,6 @@
 
 Expense Manager App is a powerful tool designed to help individuals and businesses easily manage their expenses. It provides a user-friendly interface and robust functionality to track, categorize, and analyze income or expenses efficiently.
 
-In this video tutorial, you'll learn how to make an Expense Manager application that allows users to manage income, expenses, notes, and accounts. The tutorial covers the complete process of creating an advanced expense manager application, making it suitable for both beginner and experienced programmers. 
-
-[Watch the tutorial on YouTube](https://youtu.be/MHlWd0AOQuU)
 
 The tutorial covers the following topics:
 
@@ -35,7 +32,7 @@ The tutorial covers the following topics:
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/mianasadali1/expense_manager_app_mian_speaks.git`
+1. Clone the repository
 2. Open Android Studio.
 3. Select "Open an Existing Project" from the welcome screen.
 4. Navigate to the cloned repository location and select the project's root folder.
@@ -46,25 +43,3 @@ The tutorial covers the following topics:
 1. Connect an Android device or start an emulator.
 2. Build and run the Expense Manager App project from Android Studio.
 3. Access the application on your Android device or emulator to start managing your expenses by adding, categorizing, and analyzing them using the available features.
-
-## Contributing
-
-Contributions are welcome! If you'd like to contribute to this project, please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch: `git checkout -b my-new-feature`
-3. Make your changes and commit them: `git commit -am 'Add some feature'`
-4. Push the branch: `git push origin my-new-feature`
-5. Submit a pull request.
-
-## Contact
-
-For any questions or inquiries, please reach out to:
-
-Your Name: [questions@mianasad.com]
-
-Project Link: [GitHub Repository](https://github.com/mianasadali1/expense_manager_app_mian_speaks)
-
-## License
-
-This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.
