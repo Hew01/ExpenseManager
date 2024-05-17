@@ -59,11 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-
-
         setSupportActionBar(binding.toolBar);
         getSupportActionBar().setTitle("Transactions");
-
 
         Constants.setCategories();
 
@@ -90,15 +87,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
     public void getTransactions() {
         viewModel.getTransactions(calendar);
     }
-
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.top_menu,menu);

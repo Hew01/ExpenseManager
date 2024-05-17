@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emanager.R;
@@ -17,6 +18,7 @@ import com.example.emanager.models.Transaction;
 import com.example.emanager.utils.Constants;
 import com.example.emanager.utils.Helper;
 import com.example.emanager.views.activites.MainActivity;
+import com.example.emanager.views.fragments.EditTransactionFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,18 +69,25 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                AlertDialog deleteDialog = new AlertDialog.Builder(context).create();
-                deleteDialog.setTitle("Delete Transaction");
-                deleteDialog.setMessage("Are you sure to delete this transaction?");
-                deleteDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", (dialogInterface, i) -> {
-                    ((MainActivity)context).viewModel.deleteTransaction(transaction);
-                });
-                deleteDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", (dialogInterface, i) -> {
-                    deleteDialog.dismiss();
-                });
-                deleteDialog.show();
-                return false;
+                // Create a new instance of EditTransactionFragment with the selected transaction
+                EditTransactionFragment editTransactionFragment = new EditTransactionFragment(transaction);
+                // Show the fragment
+                editTransactionFragment.show(((FragmentActivity) context).getSupportFragmentManager(), null);
+                return true;
             }
+//            public boolean onLongClick(View view) {
+//                AlertDialog deleteDialog = new AlertDialog.Builder(context).create();
+//                deleteDialog.setTitle("Delete Transaction");
+//                deleteDialog.setMessage("Are you sure to delete this transaction?");
+//                deleteDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", (dialogInterface, i) -> {
+//                    ((MainActivity)context).viewModel.deleteTransaction(transaction);
+//                });
+//                deleteDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", (dialogInterface, i) -> {
+//                    deleteDialog.dismiss();
+//                });
+//                deleteDialog.show();
+//                return false;
+//            }
         });
 
     }

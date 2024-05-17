@@ -28,19 +28,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-public class AddTransactionFragment extends BottomSheetDialogFragment {
-
-    public AddTransactionFragment() {
-        // Required empty public constructor
-    }
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-    FragmentAddTransactionBinding binding;
+public class EditTransactionFragment extends BottomSheetDialogFragment {
     Transaction transaction;
+    FragmentAddTransactionBinding binding;
+    public EditTransactionFragment(Transaction transaction) {
+        this.transaction = transaction;
+    }
+
     @Override
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentAddTransactionBinding.inflate(inflater);
@@ -150,7 +146,6 @@ public class AddTransactionFragment extends BottomSheetDialogFragment {
             ((MainActivity)getActivity()).getTransactions();
             dismiss();
         });
-
         return binding.getRoot();
     }
 }
