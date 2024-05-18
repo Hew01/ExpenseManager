@@ -6,8 +6,4 @@
         android:icon="@drawable/ic_search"
         android:title="Search"
         app:showAsAction="always" />
-    <item
-        android:icon="@drawable/ic_star"
-        android:title="Favorties"
-        app:showAsAction="always" />
 </menu>
