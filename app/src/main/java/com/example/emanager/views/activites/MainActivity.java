@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     0 = Daily
     1 = Monthly
     2 = Calendar
-    3 = Summary
-    4 = Notes
      */
 
 

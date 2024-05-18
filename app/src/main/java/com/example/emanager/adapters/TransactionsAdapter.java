@@ -66,28 +66,39 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
             holder.binding.transactionAmount.setTextColor(context.getColor(R.color.redColor));
         }
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Edit transaction logic here
+                EditTransactionFragment editTransactionFragment = new EditTransactionFragment(transaction);
+                editTransactionFragment.show(((FragmentActivity) context).getSupportFragmentManager(), null);
+            }
+        });
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                // Create a new instance of EditTransactionFragment with the selected transaction
-                EditTransactionFragment editTransactionFragment = new EditTransactionFragment(transaction);
-                // Show the fragment
-                editTransactionFragment.show(((FragmentActivity) context).getSupportFragmentManager(), null);
+                AlertDialog dialog = new AlertDialog.Builder(context)
+                        .setTitle("Confirm Delete")
+                        .setMessage("Are you sure you want to delete this transaction?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Delete transaction logic here
+                                ((MainActivity) context).viewModel.deleteTransaction(transaction);
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User canceled the delete operation
+                            }
+                        })
+                        .create();
+
+                dialog.show();
                 return true;
             }
-//            public boolean onLongClick(View view) {
-//                AlertDialog deleteDialog = new AlertDialog.Builder(context).create();
-//                deleteDialog.setTitle("Delete Transaction");
-//                deleteDialog.setMessage("Are you sure to delete this transaction?");
-//                deleteDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", (dialogInterface, i) -> {
-//                    ((MainActivity)context).viewModel.deleteTransaction(transaction);
-//                });
-//                deleteDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", (dialogInterface, i) -> {
-//                    deleteDialog.dismiss();
-//                });
-//                deleteDialog.show();
-//                return false;
-//            }
         });
 
     }
