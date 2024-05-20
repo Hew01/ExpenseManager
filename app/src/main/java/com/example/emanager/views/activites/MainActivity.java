@@ -22,6 +22,7 @@ import com.example.emanager.viewmodels.MainViewModel;
 import com.example.emanager.views.fragments.AddTransactionFragment;
 import com.example.emanager.R;
 import com.example.emanager.databinding.ActivityMainBinding;
+import com.example.emanager.views.fragments.SettingFragment;
 import com.example.emanager.views.fragments.StatsFragment;
 import com.example.emanager.views.fragments.TransactionsFragment;
 import com.google.android.material.navigation.NavigationBarView;
@@ -81,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().popBackStack();
                 } else if(item.getItemId() == R.id.stats){
                     transaction.replace(R.id.content, new StatsFragment());
+                    transaction.addToBackStack(null);
+                } else if(item.getItemId() == R.id.more){
+                    transaction.replace(R.id.content, new SettingFragment());
                     transaction.addToBackStack(null);
                 }
                 transaction.commit();
