@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -25,7 +27,8 @@ import java.util.ArrayList;
 
 import io.realm.RealmResults;
 
-public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdapter.TransactionViewHolder> {
+public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdapter.TransactionViewHolder>
+    implements Filterable {
 
 
     Context context;
@@ -106,6 +109,22 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
     @Override
     public int getItemCount() {
         return transactions.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String strSearch = constraint.toString();
+                return null;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+
+            }
+        };
     }
 
     public class TransactionViewHolder extends RecyclerView.ViewHolder {
