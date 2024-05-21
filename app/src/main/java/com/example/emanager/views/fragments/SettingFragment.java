@@ -1,6 +1,7 @@
 package com.example.emanager.views.fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -35,6 +36,8 @@ public class SettingFragment extends Fragment {
 
     private FragmentSettingBinding binding;
     private Switch darkModeSwitch;
+
+    private LinearLayout exchangeRateItem;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -77,8 +80,7 @@ public class SettingFragment extends Fragment {
 
         View root = binding.getRoot();
 
-//        final TextView textView = binding.textProfile;
-//        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        exchangeRateItem = root.findViewById(R.id.exchangeRateItem);
 
         darkModeSwitch = root.findViewById(R.id.darkModeSwitch);
         darkModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -104,6 +106,7 @@ public class SettingFragment extends Fragment {
 
                 // Get the FragmentManager and start a transaction.
                 getParentFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right)
                         .replace(R.id.content, profileFragment) // replace the container with the new fragment
                         .addToBackStack(null) // add this transaction to the back stack
                         .commit(); // commit the transaction
@@ -118,15 +121,28 @@ public class SettingFragment extends Fragment {
 
                 // Get the FragmentManager and start a transaction.
                 getParentFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right)
                         .replace(R.id.content, changePasswordFragment) // replace the container with the new fragment
                         .addToBackStack(null) // add this transaction to the back stack
                         .commit(); // commit the transaction
             }
         });
 
+        exchangeRateItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // URL cần mở
+                String url = "https://www.sacombank.com.vn/cong-cu/ty-gia.html";
+                // Tạo Intent với action ACTION_VIEW
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                // Thiết lập URL cho Intent
+                intent.setData(Uri.parse(url));
+                // Bắt đầu activity mới với intent
+                startActivity(intent);
+            }
+        });
+
         return root;
-
-
 
         //return inflater.inflate(R.layout.fragment_setting, container, false);
     }
