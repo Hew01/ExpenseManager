@@ -1,14 +1,19 @@
 package com.example.emanager.utils;
 
+import android.util.Log;
+
 import com.example.emanager.R;
 import com.example.emanager.models.Category;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Constants {
+    public static final  String AppId="expensemanager-hblxffj";
+    public static boolean isLoggedIn=false;
+    public static String UserId ="";
     public static String INCOME = "INCOME";
     public static String EXPENSE = "EXPENSE";
-
     public static ArrayList<Category> categories;
 
     public static int DAILY = 0;

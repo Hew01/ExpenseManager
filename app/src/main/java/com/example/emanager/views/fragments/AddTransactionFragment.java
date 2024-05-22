@@ -4,10 +4,12 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +24,16 @@ import com.example.emanager.models.Category;
 import com.example.emanager.models.Transaction;
 import com.example.emanager.utils.Constants;
 import com.example.emanager.utils.Helper;
+import com.example.emanager.viewmodels.MainViewModel;
 import com.example.emanager.views.activites.MainActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import org.bson.types.ObjectId;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class AddTransactionFragment extends BottomSheetDialogFragment {
 
@@ -85,7 +91,6 @@ public class AddTransactionFragment extends BottomSheetDialogFragment {
                     binding.date.setText(dateToShow);
 
                     transaction.setDate(calendar.getTime());
-                    transaction.setId(calendar.getTime().getTime());
                 });
                 datePickerDialog.show();
             }
@@ -95,6 +100,7 @@ public class AddTransactionFragment extends BottomSheetDialogFragment {
             ListDialogBinding dialogBinding = ListDialogBinding.inflate(inflater);
             AlertDialog categoryDialog = new AlertDialog.Builder(getContext()).create();
             categoryDialog.setView(dialogBinding.getRoot());
+
 
 
 
@@ -123,7 +129,15 @@ public class AddTransactionFragment extends BottomSheetDialogFragment {
             accounts.add(new Account(0, "Momo"));
             accounts.add(new Account(0, "Other"));
 
-            AccountsAdapter adapter = new AccountsAdapter(getContext(), accounts, new AccountsAdapter.AccountsClickListener() {
+            MainViewModel viewModel =new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+            List<Account> listAC= viewModel.getListAccount();
+            if (listAC.size()==0)
+            {
+                viewModel.addAccount(new Account(0, "Cash"));
+                listAC=viewModel.getListAccount();
+            }
+
+            AccountsAdapter adapter = new AccountsAdapter(getContext(), (ArrayList<Account>) listAC, new AccountsAdapter.AccountsClickListener() {
                 @Override
                 public void onAccountSelected(Account account) {
                     binding.account.setText(account.getAccountName());
@@ -151,7 +165,10 @@ public class AddTransactionFragment extends BottomSheetDialogFragment {
 
             transaction.setNote(note);
 
+
             ((MainActivity)getActivity()).viewModel.addTransaction(transaction);
+
+
             ((MainActivity)getActivity()).getTransactions();
             dismiss();
         });

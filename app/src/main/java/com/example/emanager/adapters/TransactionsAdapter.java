@@ -3,6 +3,7 @@ package com.example.emanager.adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,7 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
 
         holder.binding.categoryIcon.setImageResource(transactionCategory.getCategoryImage());
         holder.binding.categoryIcon.setBackgroundTintList(context.getColorStateList(transactionCategory.getCategoryColor()));
+
 
         holder.binding.accountLbl.setBackgroundTintList(context.getColorStateList(Constants.getAccountsColor(transaction.getAccount())));
 
