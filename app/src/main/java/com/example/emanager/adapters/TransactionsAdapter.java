@@ -33,11 +33,13 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
 
     Context context;
     RealmResults<Transaction> transactions;
+    RealmResults<Transaction> filteredTransactions;
 
 
     public TransactionsAdapter(Context context, RealmResults<Transaction> transactions) {
         this.context = context;
         this.transactions = transactions;
+        this.filteredTransactions = transactions;
     }
 
     @NonNull
@@ -108,7 +110,7 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
 
     @Override
     public int getItemCount() {
-        return transactions.size();
+        return filteredTransactions.size(); // Use filtered data size
     }
 
     @Override
@@ -135,5 +137,10 @@ public class TransactionsAdapter  extends  RecyclerView.Adapter<TransactionsAdap
             super(itemView);
             binding = RowTransactionBinding.bind(itemView);
         }
+    }
+
+    public void setTransactions(RealmResults<Transaction> filteredTransactions) {
+        this.filteredTransactions = filteredTransactions;
+        notifyDataSetChanged(); // Notify adapter that data has changed
     }
 }

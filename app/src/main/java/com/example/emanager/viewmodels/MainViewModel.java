@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.emanager.models.Transaction;
@@ -12,6 +13,7 @@ import com.example.emanager.utils.Constants;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -31,6 +33,18 @@ public class MainViewModel extends AndroidViewModel {
         super(application);
         Realm.init(application);
         setupDatabase();
+    }
+    private RealmResults<Transaction> getAllTransactions() {
+        return realm.where(Transaction.class).findAll();
+    }
+    public void filterTransactions(String query) {
+        RealmResults<Transaction> filteredTransactions = realm.where(Transaction.class)
+                .contains("description", query, Case.INSENSITIVE)
+                .findAll();
+        transactions.setValue(filteredTransactions);
+    }
+    public LiveData<RealmResults<Transaction>> getTransactions() {
+        return transactions;
     }
 
     public void getTransactions(Calendar calendar, String type) {
@@ -188,9 +202,17 @@ public class MainViewModel extends AndroidViewModel {
         // some code here
         realm.commitTransaction();
     }
+    public RealmResults<Transaction> getSearchedTransactions(String query) {
+        return realm.where(Transaction.class).findAll();
+    }
 
     void setupDatabase() {
         realm = Realm.getDefaultInstance();
+    }
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        realm.close();
     }
 
 }

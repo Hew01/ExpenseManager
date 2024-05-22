@@ -10,18 +10,27 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emanager.R;
 import com.example.emanager.adapters.TransactionsAdapter;
+import com.example.emanager.models.Transaction;
+import com.example.emanager.viewmodels.MainViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.realm.RealmResults;
 
 public class SearchActivity extends AppCompatActivity {
 
     private RecyclerView rcvTransactions;
     private TransactionsAdapter transactionsAdapter;
     private SearchView searchView;
+    private MainViewModel mainViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,14 +45,17 @@ public class SearchActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rcvTransactions.setLayoutManager(linearLayoutManager);
 
-        transactionsAdapter = new TransactionsAdapter(getSearchedTransactions());
+        transactionsAdapter = new TransactionsAdapter(this, mainViewModel.getTransactions().getValue());
         rcvTransactions.setAdapter(transactionsAdapter);
 
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         rcvTransactions.addItemDecoration(itemDecoration);
-    }
 
-    private Object getSearchedTransactions() {
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel.getTransactions().observe(this, transactions -> {
+            // Update the adapter with new data
+            transactionsAdapter.setTransactions(transactions);
+        });
     }
 
     @Override
@@ -58,13 +70,13 @@ public class SearchActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                transactionsAdapter.getFilter().filter(query);
+                mainViewModel.filterTransactions(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                transactionsAdapter.getFilter().filter(newText);
+                mainViewModel.filterTransactions(newText);
                 return false;
             }
         });
