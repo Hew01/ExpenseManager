@@ -26,6 +26,8 @@ import com.example.emanager.utils.Helper;
 import com.example.emanager.views.activites.MainActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import org.bson.types.ObjectId;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,14 +72,14 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
         }
 
         binding.incomeBtn.setOnClickListener(view -> {
-            final long transactionId = transaction.getId();  // Get the id on the UI thread
+            final ObjectId transactionId = transaction.getId();  // Get the id on the UI thread
 
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     // Fetch the Transaction object within the transaction
                     Transaction transactionToUpdate = realm.where(Transaction.class)
-                            .equalTo("id", transactionId)  // Use the id we got on the UI thread
+                            .equalTo("_id", transactionId)  // Use the id we got on the UI thread
                             .findFirst();
 
                     if (transactionToUpdate != null) {
@@ -92,14 +94,14 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
         });
 
         binding.expenseBtn.setOnClickListener(view -> {
-            final long transactionId = transaction.getId();  // Get the id on the UI thread
+            final ObjectId transactionId = transaction.getId();  // Get the id on the UI thread
 
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     // Fetch the Transaction object within the transaction
                     Transaction transactionToUpdate = realm.where(Transaction.class)
-                            .equalTo("id", transactionId)  // Use the id we got on the UI thread
+                            .equalTo("_id", transactionId)  // Use the id we got on the UI thread
                             .findFirst();
 
                     if (transactionToUpdate != null) {
@@ -128,7 +130,7 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
                     binding.date.setText(dateToShow);
 
                     transaction.setDate(calendar.getTime());
-                    transaction.setId(calendar.getTime().getTime());
+                    //transaction.setId(calendar.getTime().getTime());
                 });
                 datePickerDialog.show();
             }
@@ -143,14 +145,14 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
                 public void onCategoryClicked(Category category) {
                     binding.category.setText(category.getCategoryName());
                     final String categoryName = category.getCategoryName();  // Get the category name on the UI thread
-                    final long transactionId = transaction.getId();  // Get the id on the UI thread
+                    final ObjectId transactionId = transaction.getId();  // Get the id on the UI thread
 
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
                             // Fetch the Transaction object within the transaction
                             Transaction transactionToUpdate = realm.where(Transaction.class)
-                                    .equalTo("id", transactionId)  // Use the id we got on the UI thread
+                                    .equalTo("_id", transactionId)  // Use the id we got on the UI thread
                                     .findFirst();
 
                             if (transactionToUpdate != null) {
@@ -183,14 +185,14 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
                 public void onAccountSelected(Account account) {
                     binding.account.setText(account.getAccountName());
                     final String accountName = account.getAccountName();  // Get the account name on the UI thread
-                    final long transactionId = transaction.getId();  // Get the id on the UI thread
+                    final ObjectId transactionId = transaction.getId();  // Get the id on the UI thread
 
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
                             // Fetch the Transaction object within the transaction
                             Transaction transactionToUpdate = realm.where(Transaction.class)
-                                    .equalTo("id", transactionId)  // Use the id we got on the UI thread
+                                    .equalTo("_id", transactionId)  // Use the id we got on the UI thread
                                     .findFirst();
 
                             if (transactionToUpdate != null) {
@@ -210,14 +212,14 @@ public class EditTransactionFragment extends BottomSheetDialogFragment {
         });
 
         binding.saveTransactionBtn.setOnClickListener(c-> {
-            final long transactionId = transaction.getId();  // Get the id on the UI thread
+            final ObjectId transactionId = transaction.getId();  // Get the id on the UI thread
             final String transactionType = transaction.getType();  // Get the transaction type on the UI thread
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     // Fetch the Transaction object within the transaction
                     Transaction transactionToUpdate = realm.where(Transaction.class)
-                            .equalTo("id", transactionId)  // Use the id we got on the UI thread
+                            .equalTo("_id", transactionId)  // Use the id we got on the UI thread
                             .findFirst();
 
                     if (transactionToUpdate != null) {

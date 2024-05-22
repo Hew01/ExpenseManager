@@ -4,7 +4,9 @@ package com.example.emanager.views.fragments;
 import static io.realm.Realm.getApplicationContext;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -23,8 +25,10 @@ import android.widget.Switch;
 import com.example.emanager.R;
 import com.example.emanager.databinding.FragmentSettingBinding;
 import com.example.emanager.models.Transaction;
+import com.example.emanager.models.UserE;
 import com.example.emanager.utils.DatabaseHelper;
 import com.example.emanager.viewmodels.MainViewModel;
+import com.example.emanager.views.activites.MainActivity;
 
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -54,6 +58,7 @@ import java.util.Locale;
 
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -79,6 +84,7 @@ public class SettingFragment extends Fragment {
     private String mParam2;
 
     private FragmentSettingBinding binding;
+    public MainViewModel viewModel;
     private View root;
     Context context;
     private Switch darkModeSwitch;
@@ -127,7 +133,16 @@ public class SettingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSettingBinding.inflate(inflater, container, false);
+        viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        UserE user = viewModel.getUser();
+        if(user!=null)
+        {
+            binding.userNameTextView.setText(user.getName());
+        }
 
+        binding.logout.setOnClickListener(c->{
+            showSignOutDialog();
+        });
         Init();
         OnClick();
 
@@ -270,7 +285,7 @@ public class SettingFragment extends Fragment {
             int rowIndex = 1;
             for(Transaction t:lstTransaction) {
                 Row row = sheet.createRow(rowIndex++);
-                row.createCell(0).setCellValue(t.getId());
+                //row.createCell(0).setCellValue(t.getId());
                 row.createCell(1).setCellValue(t.getAccount());
                 row.createCell(2).setCellValue(t.getAmount());
                 row.createCell(3).setCellValue(t.getDate());
@@ -306,6 +321,7 @@ public class SettingFragment extends Fragment {
     }
 
     private void exportDataToExcel() {
+        /*
         try{
             //createExampleData_SQLite(); //Thêm dữ liệu mẫu vào db sqlite
 
@@ -363,7 +379,7 @@ public class SettingFragment extends Fragment {
             }
         }catch(Exception e){
             Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     private void showNotification(String title, String message) {
@@ -450,5 +466,21 @@ public class SettingFragment extends Fragment {
         catch (Exception e){
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+    private void showSignOutDialog() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Sign Out")
+                .setMessage("Are you sure you want to sign out?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        viewModel.clearUserCredentials();
+                        viewModel.clearRealmConfiguration();
+                        Intent intent = new Intent(requireContext(), MainActivity.class);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

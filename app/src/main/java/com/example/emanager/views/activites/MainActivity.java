@@ -30,6 +30,7 @@ import com.example.emanager.R;
 import com.example.emanager.databinding.ActivityMainBinding;
 import com.example.emanager.views.fragments.AccountsFragment;
 import com.example.emanager.views.fragments.MoreFragment;
+import com.example.emanager.views.fragments.SettingFragment;
 import com.example.emanager.views.fragments.StatsFragment;
 import com.example.emanager.views.fragments.TransactionsFragment;
 import com.google.android.material.navigation.NavigationBarView;
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+        Log.v("aloalo","aloalolao");
+
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -106,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(item.getItemId()==R.id.more)
                 {
-                    transaction.replace(R.id.content, new MoreFragment());
+                    transaction.replace(R.id.content, new SettingFragment());
                     transaction.addToBackStack(null);
                 }
 
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        Log.v("test","check");
+
 
 
 

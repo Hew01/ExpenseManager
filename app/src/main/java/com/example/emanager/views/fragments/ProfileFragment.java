@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.widget.RadioButton;
 import com.example.emanager.R;
 import com.example.emanager.databinding.FragmentProfileBinding;
 import com.example.emanager.databinding.FragmentSettingBinding;
+import com.example.emanager.models.UserE;
+import com.example.emanager.viewmodels.MainViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +44,8 @@ public class ProfileFragment extends Fragment {
     private RadioButton femaleRadioButton;
     private EditText birthdayEditText;
     private ImageView avatarImageView;
+
+    public MainViewModel viewModel;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -79,6 +84,7 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
+        viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         View root = binding.getRoot();
 
@@ -93,9 +99,18 @@ public class ProfileFragment extends Fragment {
         Button saveButton = root.findViewById(R.id.saveButton);
         ImageView changeAvatarButton = root.findViewById(R.id.changeAvatarButton);
 
-        nameEditText.setText("Vinh");
-        emailEditText.setText("vinh@gmmail.com");
-        birthdayEditText.setText("1/1/2002");
+        UserE user= viewModel.getUser();
+        nameEditText.setText(user.getName());
+        emailEditText.setText(user.getEmail());
+        birthdayEditText.setText(user.getBirthDay().toString());
+        if(user.getGender().equals("Male"))
+        {
+            maleRadioButton.setChecked(true);
+        }
+        else if(user.getGender().equals("Female"))
+        {
+            femaleRadioButton.setChecked(true);
+        }
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override

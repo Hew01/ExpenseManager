@@ -176,6 +176,7 @@ public class ChangePasswordFragment extends Fragment {
             Toast.makeText(getActivity(), "Mật khẩu không khớp", Toast.LENGTH_SHORT).show();
         } else {
             // Xử lý logic gửi mật khẩu ở đây
+
             Toast.makeText(getActivity(), "Mật khẩu đã được cập nhật", Toast.LENGTH_SHORT).show();
         }
     }

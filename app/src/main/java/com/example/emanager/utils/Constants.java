@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.emanager.R;
 import com.example.emanager.models.Category;
+import com.example.emanager.models.UserE;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -12,6 +13,7 @@ public class Constants {
     public static final  String AppId="expensemanager-hblxffj";
     public static boolean isLoggedIn=false;
     public static String UserId ="";
+    public static UserE currentUser;
     public static String INCOME = "INCOME";
     public static String EXPENSE = "EXPENSE";
     public static ArrayList<Category> categories;

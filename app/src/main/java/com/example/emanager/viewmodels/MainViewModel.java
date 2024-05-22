@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -12,27 +11,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.emanager.models.Account;
 import com.example.emanager.models.Transaction;
+import com.example.emanager.models.UserE;
 import com.example.emanager.utils.Constants;
 
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
-import io.realm.DynamicRealm;
-import io.realm.FieldAttribute;
 import io.realm.Realm;
-import io.realm.Realm.Transaction.OnSuccess;
 import io.realm.RealmConfiguration;
-import io.realm.RealmMigration;
 import io.realm.RealmResults;
-import io.realm.RealmSchema;
-import io.realm.log.LogLevel;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.Credentials;
@@ -57,10 +48,12 @@ public class MainViewModel extends AndroidViewModel {
 
     Realm realm;
     Calendar calendar;
-
+    App app;
+    Credentials credentials;
     public MainViewModel(@NonNull Application application) {
         super(application);
         Realm.init(application);
+
 
         //Xóa toàn bộ dữ liệu trong database
         /*Realm realm = Realm.getDefaultInstance();
@@ -71,10 +64,11 @@ public class MainViewModel extends AndroidViewModel {
         realm.commitTransaction();*/
 
         setupDatabase();
+        Log.v("test","Main view model hello again");
     }
     public void setupSync(String email, String password) {
-        App app = new App(new AppConfiguration.Builder(Constants.AppId).build());
-        Credentials credentials = Credentials.emailPassword(email, password);
+        app = new App(new AppConfiguration.Builder(Constants.AppId).build());
+        credentials = Credentials.emailPassword(email, password);
 
         app.loginAsync(credentials, new App.Callback<User>() {
             @Override
@@ -92,6 +86,9 @@ public class MainViewModel extends AndroidViewModel {
                                             realm.where(Transaction.class).equalTo("owner_id",Constants.UserId)));
                                     subscriptions.addOrUpdate(Subscription.create("acsubscription",
                                             realm.where(Account.class).equalTo("owner_id",Constants.UserId)));
+                                    subscriptions.addOrUpdate(Subscription.create("usersibcription",
+                                            realm.where(UserE.class).equalTo("owner_id",Constants.UserId)));
+
 
                                 }
                             })
@@ -125,6 +122,64 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
+    public void setupSyncWithUser(String email, String password,UserE user) {
+        app = new App(new AppConfiguration.Builder(Constants.AppId).build());
+        credentials = Credentials.emailPassword(email, password);
+
+        app.loginAsync(credentials, new App.Callback<User>() {
+            @Override
+            public void onResult(App.Result<User> result) {
+                if (result.isSuccess()) {
+                    Log.v("User", "Login success");
+                    Constants.UserId = app.currentUser().getId();
+
+                    saveUserCredentialsToPreferences(Constants.UserId, email, password);
+
+                    SyncConfiguration config = new SyncConfiguration.Builder(app.currentUser())
+                            .initialSubscriptions(new SyncConfiguration.InitialFlexibleSyncSubscriptions() {
+                                @Override
+                                public void configure(Realm realm, MutableSubscriptionSet subscriptions) {
+                                    subscriptions.addOrUpdate(Subscription.create("mysubscription",
+                                            realm.where(Transaction.class).equalTo("owner_id",Constants.UserId)));
+                                    subscriptions.addOrUpdate(Subscription.create("acsubscription",
+                                            realm.where(Account.class).equalTo("owner_id",Constants.UserId)));
+                                    subscriptions.addOrUpdate(Subscription.create("usersibcription",
+                                            realm.where(UserE.class).equalTo("owner_id",Constants.UserId)));
+
+
+                                }
+                            })
+                            .build();
+
+                    Realm.getInstanceAsync(config, new Realm.Callback() {
+                        @Override
+                        public void onSuccess(Realm realm) {
+                            setRealm(realm);
+
+                            Log.v("EXAMPLE", "Successfully opened a realm.");
+                            addUser(user);
+                            Subscription subscription = realm.getSubscriptions().find("mysubscription");
+                            if (subscription != null) {
+                                Log.v("Sync", "Subscription found: " + subscription.getName());
+                            } else {
+                                Log.v("Sync", "Subscription not found");
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable exception) {
+                            Log.e("EXAMPLE", "Failed to open realm: " + exception.getMessage());
+                        }
+                    });
+
+
+
+                } else {
+                    Log.v("User", "Failed to log in: " + result.getError().getErrorMessage());
+                }
+            }
+        });
+    }
     private void saveUserCredentialsToPreferences(String userId, String email, String password) {
         SharedPreferences sharedPref = getApplication().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -307,13 +362,14 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void addTransactions() {
+        /*
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(new Transaction(Constants.INCOME, "Business", "Cash", "Some note here", new Date(), 500, new Date().getTime()));
         realm.copyToRealmOrUpdate(new Transaction(Constants.EXPENSE, "Investment", "Bank", "Some note here", new Date(), -900, new Date().getTime()));
         realm.copyToRealmOrUpdate(new Transaction(Constants.INCOME, "Rent", "Other", "Some note here", new Date(), 500, new Date().getTime()));
         realm.copyToRealmOrUpdate(new Transaction(Constants.INCOME, "Business", "Card", "Some note here", new Date(), 500, new Date().getTime()));
         // some code here
-        realm.commitTransaction();
+        realm.commitTransaction();*/
     }
     public double getNetWorth()
     {
@@ -355,14 +411,50 @@ public class MainViewModel extends AndroidViewModel {
         }
         return list;
     }
+    public void addUser(UserE user)
+    {
+        user.setOwner_id(Constants.UserId);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.insert(user);
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                UserE user =realm.where(UserE.class).equalTo("owner_id",Constants.UserId).findFirst();
+                Constants.currentUser=user;
+                Log.v("realmLog",user.getEmail());
+            }
+        });
+    }
+    public UserE getUser()
+    {
+        if( realm.where(UserE.class).equalTo("owner_id",Constants.UserId).findFirst()==null)
+            return Constants.currentUser;
+        return  realm.where(UserE.class).equalTo("owner_id",Constants.UserId).findFirst();
+    }
+    public void changePassword(String newPassword)
+    {
+        String email= getUser().getEmail();
+
+        String[] args = {"security answer 1", "security answer 2"};
+        app.getEmailPassword().callResetPasswordFunctionAsync(email, newPassword, args, it -> {
+            if (it.isSuccess()) {
+                Log.i("EXAMPLE", "Successfully reset the password for" + email);
+            } else {
+                Log.e("EXAMPLE", "Failed to reset the password for" + email + ": " + it.getError().getErrorMessage());
+            }
+        });
+    }
     void setupDatabase() {
+        /*
         Realm.deleteRealm(Realm.getDefaultConfiguration());
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .allowWritesOnUiThread(true) // Cho phép ghi trên luồng UI
                 .build();
-        Realm.setDefaultConfiguration(config);
+        Realm.setDefaultConfiguration(config);*/
         realm = Realm.getDefaultInstance();
-
     }
 
     public void setRealm(Realm realm)
@@ -370,7 +462,7 @@ public class MainViewModel extends AndroidViewModel {
         this.realm=realm;
     }
     public void clearRealmConfiguration() {
-        Realm.removeDefaultConfiguration();
+        //Realm.removeDefaultConfiguration();
         realm.close();
     }
 
