@@ -4,7 +4,7 @@ plugins {
 apply plugin: "realm-android"
 android {
     namespace 'com.example.emanager'
-    compileSdk 34
+    compileSdk 33
 
     buildFeatures {
         viewBinding true
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "com.example.emanager"
         minSdk 24
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
