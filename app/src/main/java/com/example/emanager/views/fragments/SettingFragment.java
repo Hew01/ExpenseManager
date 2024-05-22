@@ -1,40 +1,30 @@
 package com.example.emanager.views.fragments;
 
-import static androidx.core.content.ContextCompat.getSystemService;
+//import static androidx.core.content.ContextCompat.getSystemService;
 import static io.realm.Realm.getApplicationContext;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.Context;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
-import com.anychart.scales.DateTime;
 import com.example.emanager.R;
 import com.example.emanager.databinding.FragmentSettingBinding;
+import com.example.emanager.models.Transaction;
 import com.example.emanager.utils.DatabaseHelper;
+import com.example.emanager.viewmodels.MainViewModel;
 
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -45,9 +35,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+//import androidx.core.content.ContextCompat;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -62,6 +51,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.MutableLiveData;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+
+import io.realm.RealmResults;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -130,12 +128,10 @@ public class SettingFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSettingBinding.inflate(inflater, container, false);
 
-        dbHelper = new DatabaseHelper(getActivity());
-
-        createNotificationChannel();
-
         Init();
         OnClick();
+
+        createNotificationChannel();
 
         return root;
         //return inflater.inflate(R.layout.fragment_setting, container, false);
@@ -144,6 +140,7 @@ public class SettingFragment extends Fragment {
     private void Init(){
         root = binding.getRoot();
         context = getActivity();
+        dbHelper = new DatabaseHelper(context);
         btnEditProfileItem = binding.editProfileItem;
         btnChangePasswordItem = binding.changePasswordItem;
         darkModeSwitch = root.findViewById(R.id.darkModeSwitch);
@@ -203,7 +200,7 @@ public class SettingFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (checkPermission()) {
-                    exportDataToExcel();
+                    exportDataRealmToExcel();
                 } else {
                     requestPermission();
                 }
@@ -227,7 +224,7 @@ public class SettingFragment extends Fragment {
     }
 
     private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result = androidx.core.content.ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -246,11 +243,74 @@ public class SettingFragment extends Fragment {
         }
     }
 
+    private void exportDataRealmToExcel() {
+        try{
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String currentDateandTime = sdf.format(new Date());
+
+            Transaction[] lstTransaction = new Transaction[MainViewModel.getFilterTransaction().size()];
+            MainViewModel.getFilterTransaction().toArray(lstTransaction);
+
+            if (lstTransaction == null || lstTransaction.length == 0) {
+                Toast.makeText(getActivity(), "Không có dữ liệu để xuất", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Bàng chi tiêu ");
+
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Mã chi tiêu");
+            headerRow.createCell(1).setCellValue("Mã người dùng");
+            headerRow.createCell(2).setCellValue("Số tiền");
+            headerRow.createCell(3).setCellValue("Thời gian");
+            headerRow.createCell(4).setCellValue("Loại");
+            headerRow.createCell(5).setCellValue("Ghi Chú");
+
+            int rowIndex = 1;
+            for(Transaction t:lstTransaction) {
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(t.getId());
+                row.createCell(1).setCellValue(t.getAccount());
+                row.createCell(2).setCellValue(t.getAmount());
+                row.createCell(3).setCellValue(t.getDate());
+                row.createCell(4).setCellValue(t.getType());
+                row.createCell(5).setCellValue(t.getNote());
+            }
+
+
+            String fileName = "ChiTieu_" + currentDateandTime.toString() + ".xlsx";
+            File file = new File(context.getExternalFilesDir(null), fileName);
+            //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                workbook.write(fos);
+                //Toast.makeText(getActivity(), "Dữ liệu được lưu ở thư mục download", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(),  "Dữ liệu được lưu ở " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                //Log.e("Thành công: ", "Dữ liệu được lưu ở " + file.getAbsolutePath());
+
+                showNotification("Xuất Excel thành công", "Dữ liệu được lưu ở " + file.getAbsolutePath());
+
+            } catch (IOException e) {
+                Toast.makeText(getActivity(), "Lỗi khi xuất file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            } finally {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }catch(Exception e){
+            Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void exportDataToExcel() {
         try{
-            //createExampleData();
+            //createExampleData_SQLite(); //Thêm dữ liệu mẫu vào db sqlite
 
             Cursor cursor = dbHelper.getAllChiTieus();
+
             if (cursor == null || cursor.getCount() == 0) {
                 Toast.makeText(getActivity(), "Không có dữ liệu để xuất", Toast.LENGTH_SHORT).show();
                 return;
@@ -280,26 +340,17 @@ public class SettingFragment extends Fragment {
             cursor.close();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
             String currentDateandTime = sdf.format(new Date());
-            String fileName = "ChiTieus_data_" + currentDateandTime.toString() + ".xlsx";
+            String fileName = "ChiTieu_" + currentDateandTime.toString() + ".xlsx";
             File file = new File(context.getExternalFilesDir(null), fileName);
             //File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
 
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 workbook.write(fos);
                 //Toast.makeText(getActivity(), "Dữ liệu được lưu ở thư mục download", Toast.LENGTH_LONG).show();
-                Toast.makeText(getActivity(),  "Dữ liệu được lưu ở " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(getActivity(),  "Dữ liệu được lưu ở " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 //Log.e("Thành công: ", "Dữ liệu được lưu ở " + file.getAbsolutePath());
 
-                /*Bitmap bitmap = BitmapFactory.decodeResource(getResources (), R.mipmap.ic_launcher);
-                Notification notification = new NotificationCompat.Builder(getActivity(), "CHANNEL_1")
-                        .setContentTitle ("Title push notification")
-                        .setContentText("Message push notification")
-                        .setSmallIcon (R.drawable.ic_export_csv)
-                        .setLargeIcon(bitmap)
-                        .setColor (getResources().getColor(R.color.default_color))
-                        .build();
-                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getActivity());
-                notificationManagerCompat.notify(getNotificationId(), notification);*/
+                showNotification("Xuất Excel thành công", "Dữ liệu được lưu ở " + file.getAbsolutePath());
 
             } catch (IOException e) {
                 Toast.makeText(getActivity(), "Lỗi khi xuất file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -315,22 +366,43 @@ public class SettingFragment extends Fragment {
         }
     }
 
+    private void showNotification(String title, String message) {
+        Context context = getContext();
+        if (context != null) {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_export_csv)
+                    .setContentTitle(title)
+                    .setContentText(message)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                    .bigText(message))
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            /*CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }*/
+                notificationManager.notify(1, builder.build());
+            }
         }
     }
 
-    private void createExampleData(){
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Context context = getContext();
+            if (context != null) {
+                CharSequence name = "Excel Export Channel";
+                String description = "Channel for Excel export notifications";
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+                channel.setDescription(description);
+
+                NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                if (notificationManager != null) {
+                    notificationManager.createNotificationChannel(channel);
+                }
+            }
+        }
+    }
+
+    private void createExampleData_SQLite(){
         try {
 
             ContentValues chiTieu1 = new ContentValues();

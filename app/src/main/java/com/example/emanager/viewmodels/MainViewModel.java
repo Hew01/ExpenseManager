@@ -24,12 +24,23 @@ public class MainViewModel extends AndroidViewModel {
     public MutableLiveData<Double> totalExpense = new MutableLiveData<>();
     public MutableLiveData<Double> totalAmount = new MutableLiveData<>();
 
+    static RealmResults<Transaction> Transaction;
+
     Realm realm;
     Calendar calendar;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
         Realm.init(application);
+
+        //Xóa toàn bộ dữ liệu trong database
+        /*Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        // delete all realm objects
+        realm.deleteAll();
+        //commit realm changes
+        realm.commitTransaction();*/
+
         setupDatabase();
     }
 
@@ -152,6 +163,7 @@ public class MainViewModel extends AndroidViewModel {
         totalExpense.setValue(expense);
         totalAmount.setValue(total);
         transactions.setValue(newTransactions);
+        Transaction = newTransactions;
 //        RealmResults<Transaction> newTransactions = realm.where(Transaction.class)
 //                .equalTo("date", calendar.getTime())
 //                .findAll();
@@ -185,5 +197,7 @@ public class MainViewModel extends AndroidViewModel {
     void setupDatabase() {
         realm = Realm.getDefaultInstance();
     }
+
+    public static RealmResults<Transaction>  getFilterTransaction(){return Transaction;}
 
 }
