@@ -133,7 +133,7 @@ public class MainViewModel extends AndroidViewModel {
                     Log.v("User", "Login success");
                     Constants.UserId = app.currentUser().getId();
 
-                    saveUserCredentialsToPreferences(Constants.UserId, email, password);
+
 
                     SyncConfiguration config = new SyncConfiguration.Builder(app.currentUser())
                             .initialSubscriptions(new SyncConfiguration.InitialFlexibleSyncSubscriptions() {
@@ -422,6 +422,7 @@ public class MainViewModel extends AndroidViewModel {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
+                saveUserCredentialsToPreferences(Constants.UserId, user.getEmail(), user.getPassword());
                 UserE user =realm.where(UserE.class).equalTo("owner_id",Constants.UserId).findFirst();
                 Constants.currentUser=user;
                 Log.v("realmLog",user.getEmail());
@@ -462,7 +463,7 @@ public class MainViewModel extends AndroidViewModel {
         this.realm=realm;
     }
     public void clearRealmConfiguration() {
-        //Realm.removeDefaultConfiguration();
+        Realm.deleteRealm(Realm.getDefaultConfiguration());
         realm.close();
     }
 
